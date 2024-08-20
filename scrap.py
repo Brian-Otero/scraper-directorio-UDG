@@ -87,8 +87,7 @@ def main():
 
     options = Options()
     options.add_argument('--headless')  # Ejecutar en modo headless
-    options.add_argument('--no-sandbox')  # Opcional para entornos con restricciones
-    options.add_argument('--disable-dev-shm-usage')  # Opcional para entornos con restricciones
+    
 
     service = Service('./chromedriver.exe')
     driver = webdriver.Chrome(service=service, options=options)
