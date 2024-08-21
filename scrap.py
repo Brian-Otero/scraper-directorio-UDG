@@ -81,23 +81,37 @@ def extract_contact_info(page_soup, base_url):
 
     return contacts
 
+def cleanup_files():
+    # Eliminar el archivo JSON si existe
+    if os.path.exists('contact_info.json'):
+        os.remove('contact_info.json')
+
+    # Eliminar todas las imágenes en el directorio 'contact_info'
+    if os.path.exists('contact_info'):
+        for filename in os.listdir('contact_info'):
+            file_path = os.path.join('contact_info', filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
 def main():
     base_url = 'https://www.cucei.udg.mx'
     start_url = 'https://www.cucei.udg.mx/es/directorio'
 
+    # Limpia los archivos antiguos antes de ejecutar el scraping
+    cleanup_files()
+
     options = Options()
-    options.add_argument('--headless')  # Ejecutar en modo headless
-    
+    options.add_argument('--headless') 
 
     service = Service('./chromedriver.exe')
     driver = webdriver.Chrome(service=service, options=options)
     
     driver.get(start_url)
     
-    # Espera hasta que la página esté completamente cargada
+    # Espera a que la pagina se cargue complatemente
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "views-row")))
     
-    # Obtener el HTML después de que el JavaScript haya sido ejecutado
+    # Obtiene el HTML después de que el JavaScript haya sido ejecutado
     page_soup = BeautifulSoup(driver.page_source, 'html.parser')
     
     contact_info = extract_contact_info(page_soup, base_url)
