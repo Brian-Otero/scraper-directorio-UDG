@@ -1,4 +1,6 @@
-selenium==4.20.0
-beautifulsoup4==4.12.2
-requests==2.31.0
-Flask==2.3.2
+selenium
+beautifulsoup4
+requests
+Flask
+python-dotenv
+ngrok
