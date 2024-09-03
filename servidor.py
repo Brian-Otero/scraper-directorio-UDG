@@ -26,7 +26,7 @@ def should_run_scraping(json_path):
 
 # Función de la API para activar el scraper
 def run_scraping(script_name):
-    subprocess.run(['python', script_name], check=True)
+    subprocess.run(['python3', script_name], check=True)
 
 # Función de la API para servir el JSON de contact_info
 @app.get("/")
