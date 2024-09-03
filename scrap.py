@@ -105,7 +105,7 @@ def main():
     options.add_argument('--disable-gpu')
     options.add_argument('--no-sandbox')
 
-    service = Service('./chromedriver')
+    service = Service('./chromedriver.exe')
     driver = webdriver.Chrome(service=service, options=options)
     
     driver.get(start_url)
