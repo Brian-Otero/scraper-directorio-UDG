@@ -11,6 +11,7 @@ import uvicorn
 contact_info_json_path = 'contact_info.json'
 becas_json_path = 'becas_convocatorias.json'
 
+json_directory = '/home/hectorg/Ubicate/JSON_Files/'
 # Intervalo de tiempo para ejecutar los scrapers (1 semana)
 scraping_interval = timedelta(weeks=1)
 
@@ -53,6 +54,29 @@ async def serve_becas_json():
         return JSONResponse(content=becas_info)
     else:
         raise HTTPException(status_code=404, detail="Archivo JSON de becas no encontrado")
+    
+# Endpoint genérico para servir cualquier archivo JSON desde la carpeta 
+@app.get("/json/{filename}")
+async def serve_json(filename: str):
+    file_path = os.path.join(json_directory, f"{filename}.json")
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            file_data = json.load(f)
+        return JSONResponse(content=file_data)
+    else:
+        raise HTTPException(status_code=404, detail=f"Archivo JSON '{filename}.json' no encontrado")
+
+
+# Función de la API para servir imágenes
+@app.get("/get-image/{filename}")
+async def get_image(filename: str):
+    filepath = os.path.join('contact_info', filename)
+    
+    if os.path.exists(filepath):
+        return FileResponse(filepath, media_type='image/jpeg')
+    else:
+        raise HTTPException(status_code=404, detail=f"Imagen {filename} no encontrada")
+
 
 # Función de la API para servir imágenes
 @app.get("/get-image/{filename}")
