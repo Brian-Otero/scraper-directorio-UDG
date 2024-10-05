@@ -1,3 +1,5 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -32,17 +34,31 @@ def extract_table_data(page_soup):
 
     return table_data
 
+def get_driver_for_linux():
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument("--window-size=1920,1080")
+    driver = webdriver.Chrome(service=Service(), options=chrome_options)
+    driver.implicitly_wait(10)
+    return driver
+
+
+def get_driver_for_windows():
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    driver = webdriver.Chrome(service=Service("./chromedriver.exe"), options=options)
+    return driver
 
 def main():
     start_url = 'https://www.cucei.udg.mx/es/servicios/becas-y-convocatorias'
 
-    options = Options()
-    options.add_argument('--headless')  # Ejecuta el navegador en modo headless
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-
-    service = Service('./chromedriver')
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = get_driver_for_windows() if os.name == 'nt' else get_driver_for_linux()
+    driver.get(start_url)
 
     driver.get(start_url)
     

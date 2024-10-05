@@ -1,23 +1,28 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
 import json
 import os
 import re
+
 import requests
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 def get_full_url(base_url, relative_url):
     return base_url + relative_url if relative_url.startswith('/') else relative_url
 
+
 def decode_html_entities(html):
     return re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), html)
 
+
 def clean_text(text):
     return re.sub(r'^(Puesto:|Dirección:|Conmutador:|Teléfono:)\s*', '', text.strip())
+
 
 def extract_contact_info(page_soup, base_url):
     contacts = []
@@ -81,6 +86,7 @@ def extract_contact_info(page_soup, base_url):
 
     return contacts
 
+
 def cleanup_files():
     # Eliminar el archivo JSON si existe
     if os.path.exists('contact_info.json'):
@@ -93,6 +99,28 @@ def cleanup_files():
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
+
+def get_driver_for_linux():
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument("--window-size=1920,1080")
+    driver = webdriver.Chrome(service=Service(), options=chrome_options)
+    driver.implicitly_wait(10)
+    return driver
+
+
+def get_driver_for_windows():
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    driver = webdriver.Chrome(service=Service("./chromedriver.exe"), options=options)
+    return driver
+
+
 def main():
     base_url = 'https://www.cucei.udg.mx'
     start_url = 'https://www.cucei.udg.mx/es/directorio'
@@ -100,29 +128,24 @@ def main():
     # Limpia los archivos antiguos antes de ejecutar el scraping
     cleanup_files()
 
-    options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-
-    service = Service('./chromedriver.exe')
-    driver = webdriver.Chrome(service=service, options=options)
-    
+    # Selecciona el driver adecuado según el sistema operativo
+    driver = get_driver_for_windows() if os.name == 'nt' else get_driver_for_linux()
     driver.get(start_url)
-    
+
     # Espera a que la pagina se cargue complatemente
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "views-row")))
-    
+
     # Obtiene el HTML después de que el JavaScript haya sido ejecutado
     page_soup = BeautifulSoup(driver.page_source, 'html.parser')
-    
+
     contact_info = extract_contact_info(page_soup, base_url)
     with open('contact_info.json', 'w', encoding='utf-8') as f:
         json.dump(contact_info, f, ensure_ascii=False, indent=4)
-    
+
     print("Data extraction and saving complete.")
-    
+
     driver.quit()
+
 
 if __name__ == "__main__":
     main()

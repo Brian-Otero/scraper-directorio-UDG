@@ -100,4 +100,4 @@ if __name__ == "__main__":
     schedule_weekly_scraping()
     
     # Ejecutar el servidor de FastAPI por medio de uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=5010)
