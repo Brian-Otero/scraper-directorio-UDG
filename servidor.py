@@ -78,15 +78,6 @@ async def get_image(filename: str):
         raise HTTPException(status_code=404, detail=f"Imagen {filename} no encontrada")
 
 
-# Función de la API para servir imágenes
-@app.get("/get-image/{filename}")
-async def get_image(filename: str):
-    filepath = os.path.join('contact_info', filename)
-    
-    if os.path.exists(filepath):
-        return FileResponse(filepath, media_type='image/jpeg')
-    else:
-        raise HTTPException(status_code=404, detail=f"Imagen {filename} no encontrada")
 
 # Configuración del programador de tareas
 def schedule_weekly_scraping():
